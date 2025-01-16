@@ -328,6 +328,97 @@ DPIFrame(NULL, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_S
         // jump to found option from SearchDialog
         Bind(wxCUSTOMEVT_JUMP_TO_OPTION, [](wxCommandEvent& evt) { wxGetApp().jump_to_option(evt.GetInt()); });
     }
+
+    // enable_leapfrog_mode();
+}
+
+void CleanUpSeparators(wxMenu* menu) {
+    if (!menu) return;
+
+    auto items = menu->GetMenuItems(); // Get all menu items
+    for (size_t i = 0; i < items.size();) {
+        if (items[i]->IsSeparator()) {
+            // Check if the separator is at the start, end, or followed by another separator
+            bool isStartOrEnd = (i == 0 || i == items.size() - 1);
+            bool isAdjacentToSeparator = (i > 0 && items[i - 1]->IsSeparator()) ||
+                                         (i < items.size() - 1 && items[i + 1]->IsSeparator());
+
+            if (isStartOrEnd || isAdjacentToSeparator) {
+                menu->Delete(items[i]); // Delete the separator
+                items = menu->GetMenuItems(); // Update the item list
+                continue; // Re-evaluate the same position
+            }
+        }
+        ++i; // Move to the next item
+    }
+}
+
+// leapfrog 3.3
+void MainFrame::enable_leapfrog_mode()
+{
+    // 1.3 remove/hide printers tab (Hide instead of RemovePage?)
+    int m_tab_printer_idx = m_tabpanel->FindPage(m_tab_printer);
+    m_tabpanel->RemovePage(m_tab_printer_idx);
+
+    // 2.3 remove window menu
+    int window_idx = m_menubar->FindMenu(_L("&Window"));
+    m_menubar->Remove(window_idx);
+
+    // 2.3 add parts library menu
+    wxMenu* parts_library = new wxMenu();
+    m_menubar->Insert(2, parts_library, _L("&Parts Library"));
+
+    // 2.4 remove view menu
+    int view_idx = m_menubar->FindMenu(_L("&View"));
+    m_menubar->Remove(view_idx);
+
+    // 2.5 remove configuration items
+    int config_idx = m_menubar->FindMenu(_L("&Configuration"));
+    m_menubar->Remove(config_idx);
+
+    // 2.5 create only language
+
+    // 2.6 remove help items
+    int help_idx = m_menubar->FindMenu(_L("&Help"));
+    wxMenu* help_menu = m_menubar->GetMenu(help_idx);
+    std::vector<wxString> help_items_to_remove = { 
+        wxString::Format(_L("%s &Website"), SLIC3R_APP_NAME), 
+        wxString::Format(_L("&Quick Start"), SLIC3R_APP_NAME), 
+        wxString::Format(_L("Sample &G-codes and Models"), SLIC3R_APP_NAME), 
+        wxString(_L("Prusa 3D &Drivers")),
+        wxString(_L("Software &Releases")),
+        wxString(_L("Report an I&ssue")),
+        wxString(_L("Show Tip of the Day")),
+        wxString::Format(_L("&About %s"), SLIC3R_APP_NAME)
+    };
+    for (const auto& item : help_items_to_remove) {
+        int idx = help_menu->FindItem(item);
+        help_menu->Remove(idx);
+    }
+    CleanUpSeparators(help_menu);
+
+    // 2.6 add contact support
+    help_menu->AppendSeparator();
+    append_menu_item(help_menu, wxID_ANY, wxString::Format(_L("Contact %s support"), SLIC3R_APP_NAME),
+    wxString::Format(_L("Open the %s support website in your browser"), SLIC3R_APP_NAME),
+    [](wxCommandEvent&) { wxGetApp().open_browser_with_warning_dialog("https://lpfrg.freshdesk.com/support/solutions"); });
+
+    // Update layout
+    Layout();
+}
+
+// leapfrog 3.3
+void MainFrame::disable_leapfrog_mode()
+{
+    // 1.3 show printers tab
+    m_tab_printer = new TabPrinter(m_tabpanel);
+    add_created_tab(m_tab_printer, wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
+
+    // 2 restore menu bar
+    init_menubar_as_editor();
+
+    // Update layout
+    Layout();
 }
 
 void MainFrame::update_layout()
@@ -482,7 +573,7 @@ void MainFrame::update_layout()
 #endif //__WXMSW__
 
     if (m_layout == ESettingsLayout::Old)
-        m_tabpanel->InsertNewPage(0, m_plater, _L("Plater"), "", true);
+        m_tabpanel->InsertNewPage(0, m_plater, _L("Slicing"), "", true); // leapfrog 1.1
 
     update_topbars();
 
@@ -643,7 +734,7 @@ void MainFrame::set_callbacks_for_topbar_menus()
 
             MessageDialog msg_dlg(this, msg, _L("PrusaSlicer: Don't ask me again"), wxOK | wxCANCEL | wxICON_INFORMATION);
             if (msg_dlg.ShowModal() == wxID_OK) {
-                wxGetApp().app_config->set("show_login_button", "0");
+                wxGetApp().app_config->set("show_login_button", "1"); // leapfrog 3.2
 
                 m_bar_menus.RemoveHideLoginItem();
                 update_topbars();
@@ -803,10 +894,17 @@ void MainFrame::create_preset_tabs()
     add_created_tab(new TabFilament(m_tabpanel), "spool");
     add_created_tab(new TabSLAPrint(m_tabpanel), "cog");
     add_created_tab(new TabSLAMaterial(m_tabpanel), "resin");
-    add_created_tab(new TabPrinter(m_tabpanel), wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
+    // add_created_tab(new TabPrinter(m_tabpanel), wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
+
+    // leapfrog 1.3 create, add to m_tabpanel, and then remove
+    m_tab_printer = new TabPrinter(m_tabpanel);    
+    add_created_tab(m_tab_printer, wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
+    int m_tab_printer_idx = m_tabpanel->FindPage(m_tab_printer);
+    m_tabpanel->RemovePage(m_tab_printer_idx);
     
-    m_printables_webview = new PrintablesWebViewPanel(m_tabpanel);
-    add_printables_webview_tab();
+    // leapfrog hide new printables tab
+    // m_printables_webview = new PrintablesWebViewPanel(m_tabpanel);
+    // add_printables_webview_tab();
    
     m_connect_webview = new ConnectWebViewPanel(m_tabpanel);
     m_printer_webview = new PrinterWebViewPanel(m_tabpanel, L"");
@@ -950,7 +1048,7 @@ void MainFrame::add_printer_webview_tab(const wxString& url)
     }
     m_printer_webview_added = true;
     // add as the last (rightmost) panel
-    m_tabpanel->AddNewPage(m_printer_webview, _L("Physical Printer"), "");
+    m_tabpanel->AddNewPage(m_printer_webview, _L("Printer Control"), ""); // leapfrog 1.4
     m_printer_webview->set_default_url(url);
     m_printer_webview->set_create_browser();
 }
@@ -959,7 +1057,7 @@ void MainFrame::remove_printer_webview_tab()
     if (!m_printer_webview_added) {
         return;
     }
-    if (m_tabpanel->GetPageText(m_tabpanel->GetSelection()) == _L("Physical Printer"))
+    if (m_tabpanel->GetPageText(m_tabpanel->GetSelection()) == _L("Printer Control")) // leapfrog 1.4
             select_tab(size_t(0));
     m_printer_webview_added = false;
     m_printer_webview->Hide();
@@ -1401,6 +1499,10 @@ static wxMenu* generate_help_menu()
     append_menu_item(helpMenu, wxID_ANY, "DEBUG gcode thumbnails", "DEBUG ONLY - read the selected gcode file and generates png for the contained thumbnails",
         [](wxCommandEvent&) { wxGetApp().gcode_thumbnails_debug(); });
 #endif // ENABLE_THUMBNAIL_GENERATOR_DEBUG
+
+    helpMenu->AppendSeparator();
+    append_menu_item(helpMenu, wxID_ANY, "Toggle service mode", "Switch service mode on or off",
+        [](wxCommandEvent&) { wxGetApp().toggle_leapfrog_mode(); });
 
     return helpMenu;
 }

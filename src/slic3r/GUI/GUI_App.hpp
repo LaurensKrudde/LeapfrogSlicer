@@ -143,6 +143,8 @@ public:
     };
 
 private:
+    bool            m_leapfrog_mode{ true };
+
     bool            m_initialized { false };
     bool            m_post_initialized { false };
     bool            m_app_conf_exists{ false };
@@ -198,6 +200,10 @@ private:
     LogGui*                  m_log_gui { nullptr };
 
 public:
+    void            toggle_leapfrog_mode();
+    void            enable_leapfrog_mode();
+    void            disable_leapfrog_mode();
+
     bool            OnInit() override;
     bool            initialized() const { return m_initialized; }
 

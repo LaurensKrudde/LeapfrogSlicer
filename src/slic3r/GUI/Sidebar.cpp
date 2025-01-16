@@ -587,6 +587,26 @@ Sidebar::Sidebar(Plater *parent)
 
 Sidebar::~Sidebar() {}
 
+// leapfrog 3.3
+void Sidebar::enable_leapfrog_mode()
+{
+    m_presets_sizer->Show(8, false);
+    m_presets_sizer->Show(9, false);
+
+    m_scrolled_panel->GetParent()->Layout();
+    m_scrolled_panel->Refresh();
+}
+
+// leapfrog 3.3
+void Sidebar::disable_leapfrog_mode()
+{
+    m_presets_sizer->Show(8, true);
+    m_presets_sizer->Show(9, true);
+
+    m_scrolled_panel->GetParent()->Layout();
+    m_scrolled_panel->Refresh();
+}
+
 void Sidebar::init_filament_combo(PlaterPresetComboBox** combo, int extr_idx)
 {
     *combo = new PlaterPresetComboBox(m_presets_panel, Slic3r::Preset::TYPE_FILAMENT);

@@ -158,6 +158,7 @@ if (NOT MSVC)
 endif ()
 
 # Display and check CMAKE_PREFIX_PATH
+#set(CMAKE_PREFIX_PATH "C:/Users/laure/Documents/AVFlexologic/LeapfrogSlicer-deps/usr/local")
 message(STATUS "SLIC3R_STATIC: ${SLIC3R_STATIC}")
 if (NOT "${CMAKE_PREFIX_PATH}" STREQUAL "")
     message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH} (from cache or command line)")

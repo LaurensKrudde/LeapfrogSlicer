@@ -40,6 +40,7 @@ namespace GUI
 {
 
 class Tab;
+class TabPrinter;
 class PrintHostQueueDialog;
 class Plater;
 class MainFrame;
@@ -99,6 +100,8 @@ class MainFrame : public DPIFrame
 
     size_t      m_last_selected_tab;
     Search::OptionsSearcher m_searcher;
+
+    TabPrinter*             m_tab_printer{ nullptr };
 
     ConnectWebViewPanel*    m_connect_webview{ nullptr };
     bool                    m_connect_webview_added{ false };
@@ -165,6 +168,9 @@ protected:
 public:
     MainFrame(const int font_point_size);
     ~MainFrame() = default;
+
+    void        enable_leapfrog_mode();
+    void        disable_leapfrog_mode();
 
     void update_layout();
     void update_mode_markers();

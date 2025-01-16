@@ -476,7 +476,7 @@ class TabFilament : public Tab
     std::map<std::string, wxWindow*> m_overrides_options;
 public:
 	TabFilament(wxBookCtrlBase* parent) :
-		Tab(parent, _L("Filaments"), Slic3r::Preset::TYPE_FILAMENT) {}
+		Tab(parent, _L("Filament Settings"), Slic3r::Preset::TYPE_FILAMENT) {} // leapfrog 1.2
 	~TabFilament() {}
 
 	void		build() override;

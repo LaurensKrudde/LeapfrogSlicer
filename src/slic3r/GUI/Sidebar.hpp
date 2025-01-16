@@ -123,6 +123,9 @@ public:
     ConfigOptionsGroup*     og_freq_chng_params(const bool is_fff);
     wxButton*               get_wiping_dialog_button();
 
+    void enable_leapfrog_mode();
+    void disable_leapfrog_mode();
+
     void show_info_sizer();
     void show_sliced_info_sizer(const bool show);
     void show_btns_sizer(const bool show);

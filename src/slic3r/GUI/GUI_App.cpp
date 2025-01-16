@@ -236,7 +236,9 @@ public:
         // load bitmap for logo
         BitmapCache bmp_cache;
         int logo_size = lround(width * 0.25);
-        wxBitmap* logo_bmp_ptr = bmp_cache.load_svg(wxGetApp().logo_name(), logo_size, logo_size);
+        // leapfrog 4.41
+        // wxBitmap* logo_bmp_ptr = bmp_cache.load_svg(wxGetApp().logo_name(), logo_size, logo_size);
+        wxBitmap* logo_bmp_ptr = bmp_cache.load_png("Leapfrog", logo_size, logo_size);
         if (logo_bmp_ptr == nullptr)
             return;
 
@@ -299,12 +301,19 @@ private:
             title = wxGetApp().is_editor() ? SLIC3R_APP_NAME : GCODEVIEWER_APP_NAME;
 
             // dynamically get the version to display
-            version = _L("Version") + " " + std::string(SLIC3R_VERSION);
+            // version = _L("Version") + " " + std::string(SLIC3R_VERSION);
 
             // credits infornation
+            // credits = "\n" + title + " " +
+            //     _L("is based on Slic3r by Alessandro Ranellucci and the RepRap community.") + "\n\n" +
+            //     _L("Developed by Prusa Research.") + "\n\n" +
+            //     _L("Licensed under GNU AGPLv3.") + "\n\n\n\n\n\n\n";
+
+            // leapfrog 4.43
+            version = _L("Version 1.0");
             credits = "\n" + title + " " +
-                _L("is based on Slic3r by Alessandro Ranellucci and the RepRap community.") + "\n\n" +
-                _L("Developed by Prusa Research.") + "\n\n" +
+                _L("is based on PrusaSlicer, which is based on Slic3r by Alessandro Ranellucci and the RepRap community.") + "\n\n" +
+                // _L("Developed by Prusa Research.") + "\n\n" +
                 _L("Licensed under GNU AGPLv3.") + "\n\n\n\n\n\n\n";
 
             title_font = version_font = credits_font = init_font;
@@ -761,6 +770,78 @@ static void generic_exception_handle()
         BOOST_LOG_TRIVIAL(error) << boost::format("Uncaught exception: %1%") % ex.what();
         throw;
     }
+}
+
+// Password Dialog Class
+class PasswordDialog : public wxDialog {
+public:
+    PasswordDialog(MainFrame* mainframe)
+        : wxDialog(mainframe, wxID_ANY, "Enter Admin Password", wxDefaultPosition, wxSize(300, 150)) {
+        // Create layout
+        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        
+        // Password input field
+        wxStaticText* label = new wxStaticText(this, wxID_ANY, "Password:");
+        passwordInput = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD);
+        wxButton* okButton = new wxButton(this, wxID_OK, "OK");
+        wxButton* cancelButton = new wxButton(this, wxID_CANCEL, "Cancel");
+        
+        // Add to layout
+        sizer->Add(label, 0, wxALL | wxALIGN_CENTER_HORIZONTAL, 10);
+        sizer->Add(passwordInput, 0, wxALL | wxEXPAND, 10);
+        sizer->Add(okButton, 0, wxALL | wxALIGN_CENTER, 5);
+        sizer->Add(cancelButton, 0, wxALL | wxALIGN_CENTER, 5);
+        
+        SetSizerAndFit(sizer);
+        
+        // Center dialog on screen
+        Centre();
+    }
+
+    wxString GetPassword() const {
+        return passwordInput->GetValue();
+    }
+
+private:
+    wxTextCtrl* passwordInput;
+};
+
+// leapfrog 3.3
+void GUI_App::toggle_leapfrog_mode()
+{
+    if (m_leapfrog_mode) {
+        disable_leapfrog_mode();
+        m_leapfrog_mode = false;
+        Ask for password
+        PasswordDialog dialog(mainframe);
+        if (dialog.ShowModal() == wxID_OK) {
+            if (dialog.GetPassword() == "avmom") {
+                
+                wxMessageBox("Access granted.", "Success", wxOK | wxICON_INFORMATION);
+            } else {
+                wxMessageBox("Incorrect password.", "Error", wxOK | wxICON_ERROR);
+            }
+        }
+    } else {
+        enable_leapfrog_mode();
+        m_leapfrog_mode = true;
+    }
+}
+
+void GUI_App::enable_leapfrog_mode()
+{
+    sidebar().enable_leapfrog_mode();
+    mainframe->enable_leapfrog_mode();
+
+    std::cout << "Leapfrog mode enabled" << std::endl;
+}
+
+void GUI_App::disable_leapfrog_mode()
+{
+    sidebar().disable_leapfrog_mode();
+    mainframe->disable_leapfrog_mode();
+
+    std::cout << "Leapfrog mode disabled" << std::endl;
 }
 
 void GUI_App::post_init()
@@ -1453,7 +1534,8 @@ bool GUI_App::on_init_inner()
     SplashScreen* scrn = nullptr;
     if (app_config->get_bool("show_splash_screen")) {
         // make a bitmap with dark grey banner on the left side
-        wxBitmap bmp = SplashScreen::MakeBitmap(wxBitmap(from_u8(var(is_editor() ? "splashscreen.jpg" : "splashscreen-gcodepreview.jpg")), wxBITMAP_TYPE_JPEG));
+        // leapfrog 4.42
+        wxBitmap bmp = SplashScreen::MakeBitmap(wxBitmap(from_u8(var(is_editor() ? "splashscreen-leapfrog-black.jpg" : "splashscreen-gcodepreview.jpg")), wxBITMAP_TYPE_JPEG));
 
         // Detect position (display) to show the splash screen
         // Now this position is equal to the mainframe position
@@ -1503,6 +1585,7 @@ bool GUI_App::on_init_inner()
             associate_stl_files();
 #endif // __WXMSW__
 
+        // leapfrog new release notification (remove?)
         m_preset_updater_wrapper = std::make_unique<PresetUpdaterWrapper>();
         Bind(EVT_SLIC3R_VERSION_ONLINE, &GUI_App::on_version_read, this);
         Bind(EVT_SLIC3R_EXPERIMENTAL_VERSION_ONLINE, [this](const wxCommandEvent& evt) {
@@ -1695,6 +1778,8 @@ bool GUI_App::on_init_inner()
         else if (answer == wxID_NO)
             app_config->set("restore_win_position", "1");
     }
+
+    enable_leapfrog_mode();
 
     return true;
 }
