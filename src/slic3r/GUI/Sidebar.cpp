@@ -587,7 +587,7 @@ Sidebar::Sidebar(Plater *parent)
 
 Sidebar::~Sidebar() {}
 
-// leapfrog 3.3
+// leapfrog 5.3
 void Sidebar::enable_leapfrog_mode()
 {
     m_presets_sizer->Show(8, false);
@@ -597,7 +597,7 @@ void Sidebar::enable_leapfrog_mode()
     m_scrolled_panel->Refresh();
 }
 
-// leapfrog 3.3
+// leapfrog 5.3
 void Sidebar::disable_leapfrog_mode()
 {
     m_presets_sizer->Show(8, true);

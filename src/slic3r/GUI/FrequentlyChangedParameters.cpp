@@ -82,6 +82,9 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
                 }
                 new_conf.set_key_value("brim_width", new ConfigOptionFloat(new_val));
             }
+            // leapfrog else if (opt_key == "duplication") {
+            // change printer preset
+            // wxGetApp() -> 
             else {
                 assert(opt_key == "support");
                 const wxString& selection = boost::any_cast<wxString>(value);
@@ -142,7 +145,7 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
     m_og_fff->append_line(line);
 
 
-    line = Line { "", "" };
+    line = Line { "", "", "" };
 
     option = m_og_fff->get_option("fill_density");
     option.opt.label = L("Infill");
@@ -158,6 +161,17 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
     def.gui_type = ConfigOptionDef::GUIType::undefined;
     def.set_default_value(new ConfigOptionBool{ m_brim_width > 0.0 ? true : false });
     option = Option(def, "brim");
+    option.opt.sidetext = "";
+    line.append_option(option);
+
+    // leapfrog 5.4 add duplication checkbox
+    ConfigOptionDef duplication_checkbox;
+    duplication_checkbox.label = L("Duplication");
+    duplication_checkbox.type = coBool;
+    duplication_checkbox.tooltip = L("This flag enables printing the same object twice in parallel. Both use half of the print bed.");
+    duplication_checkbox.gui_type = ConfigOptionDef::GUIType::undefined;
+    duplication_checkbox.set_default_value(new ConfigOptionBool{ false });
+    option = Option(duplication_checkbox, "duplication");
     option.opt.sidetext = "";
     line.append_option(option);
 

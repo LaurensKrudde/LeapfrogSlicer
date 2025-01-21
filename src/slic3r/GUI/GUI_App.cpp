@@ -810,13 +810,12 @@ private:
 void GUI_App::toggle_leapfrog_mode()
 {
     if (m_leapfrog_mode) {
-        disable_leapfrog_mode();
-        m_leapfrog_mode = false;
-        Ask for password
+        // Ask for password
         PasswordDialog dialog(mainframe);
         if (dialog.ShowModal() == wxID_OK) {
             if (dialog.GetPassword() == "avmom") {
-                
+                disable_leapfrog_mode();
+                m_leapfrog_mode = false;
                 wxMessageBox("Access granted.", "Success", wxOK | wxICON_INFORMATION);
             } else {
                 wxMessageBox("Incorrect password.", "Error", wxOK | wxICON_ERROR);
@@ -928,22 +927,24 @@ void GUI_App::post_init()
     // to popup a modal dialog on start without screwing combo boxes.
     // This is ugly but I honestly found no better way to do it.
     // Neither wxShowEvent nor wxWindowCreateEvent work reliably.
-    if (this->get_preset_updater_wrapper()) { // G-Code Viewer does not initialize preset_updater.
-        CallAfter([this] {
-            // preset_updater->sync downloads profile updates and than via event checks updates and incompatible presets. We need to run it on startup.
-            // start before cw so it is canceled by cw if needed?
-            this->get_preset_updater_wrapper()->sync_preset_updater(this, preset_bundle);
-            bool cw_showed = this->config_wizard_startup();
-            if (! cw_showed) {
-                // The CallAfter is needed as well, without it, GL extensions did not show.
-                // Also, we only want to show this when the wizard does not, so the new user
-                // sees something else than "we want something" on the first start.
-                show_send_system_info_dialog_if_needed();   
-            }  
-            // app version check is asynchronous and triggers blocking dialog window, better call it last
-            this->app_version_check(false);
-        });
-    }
+    
+    // leapfrog 6.3 commented out to not run config wizard on startup
+    // if (this->get_preset_updater_wrapper()) { // G-Code Viewer does not initialize preset_updater.
+    //     CallAfter([this] {
+    //         // preset_updater->sync downloads profile updates and than via event checks updates and incompatible presets. We need to run it on startup.
+    //         // start before cw so it is canceled by cw if needed?
+    //         this->get_preset_updater_wrapper()->sync_preset_updater(this, preset_bundle);
+    //         bool cw_showed = this->config_wizard_startup();
+    //         if (! cw_showed) {
+    //             // The CallAfter is needed as well, without it, GL extensions did not show.
+    //             // Also, we only want to show this when the wizard does not, so the new user
+    //             // sees something else than "we want something" on the first start.
+    //             show_send_system_info_dialog_if_needed();   
+    //         }  
+    //         // app version check is asynchronous and triggers blocking dialog window, better call it last
+    //         this->app_version_check(false);
+    //     });
+    // }
 
     // Set PrusaSlicer version and save to PrusaSlicer.ini or PrusaSlicerGcodeViewer.ini.
     app_config->set("version", SLIC3R_VERSION);

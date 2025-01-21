@@ -74,7 +74,15 @@ And that's it. It is now possible to run the freshly built PrusaSlicer binary:
     ./prusa-slicer
 
 
+#### 4. Creating .zip or installer for distribution
 
+This does something, but does not seem to create something useful for distribution: (the prefix path is needed otherwise the built dependencies are not found)
+
+`cmake --preset default -DCMAKE_PREFIX_PATH=$(pwd)/deps/build/destdir/usr/local`
+
+This works. Creates a dist folder that can be zipped and distributed:
+
+`cmake --build build-default --target install`
 
 ## Useful CMake flags when building dependencies
 
