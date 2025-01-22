@@ -776,7 +776,7 @@ static void generic_exception_handle()
 class PasswordDialog : public wxDialog {
 public:
     PasswordDialog(MainFrame* mainframe)
-        : wxDialog(mainframe, wxID_ANY, "Enter Admin Password", wxDefaultPosition, wxSize(300, 150)) {
+        : wxDialog(mainframe, wxID_ANY, "Enter Admin Password", wxDefaultPosition, wxSize(200, 100)) {
         // Create layout
         wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
         
@@ -792,7 +792,9 @@ public:
         sizer->Add(okButton, 0, wxALL | wxALIGN_CENTER, 5);
         sizer->Add(cancelButton, 0, wxALL | wxALIGN_CENTER, 5);
         
-        SetSizerAndFit(sizer);
+        SetSizer(sizer);
+
+        SetDefaultItem(okButton);
         
         // Center dialog on screen
         Centre();
@@ -806,7 +808,7 @@ private:
     wxTextCtrl* passwordInput;
 };
 
-// leapfrog 3.3
+// leapfrog 3.3 - toggle service mode
 void GUI_App::toggle_leapfrog_mode()
 {
     if (m_leapfrog_mode) {
@@ -816,7 +818,7 @@ void GUI_App::toggle_leapfrog_mode()
             if (dialog.GetPassword() == "avmom") {
                 disable_leapfrog_mode();
                 m_leapfrog_mode = false;
-                wxMessageBox("Access granted.", "Success", wxOK | wxICON_INFORMATION);
+                wxMessageBox("Service mode enabled.", "Success", wxOK | wxICON_INFORMATION);
             } else {
                 wxMessageBox("Incorrect password.", "Error", wxOK | wxICON_ERROR);
             }
@@ -827,6 +829,7 @@ void GUI_App::toggle_leapfrog_mode()
     }
 }
 
+// leapfrog 3.3
 void GUI_App::enable_leapfrog_mode()
 {
     sidebar().enable_leapfrog_mode();
@@ -835,6 +838,7 @@ void GUI_App::enable_leapfrog_mode()
     std::cout << "Leapfrog mode enabled" << std::endl;
 }
 
+// leapfrog 3.3
 void GUI_App::disable_leapfrog_mode()
 {
     sidebar().disable_leapfrog_mode();
@@ -1780,6 +1784,7 @@ bool GUI_App::on_init_inner()
             app_config->set("restore_win_position", "1");
     }
 
+    // leapfrog mode on by default
     enable_leapfrog_mode();
 
     return true;

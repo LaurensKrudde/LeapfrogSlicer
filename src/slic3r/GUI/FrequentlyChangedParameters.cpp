@@ -145,7 +145,7 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
     m_og_fff->append_line(line);
 
 
-    line = Line { "", "", "" };
+    line = Line { "", "" };
 
     option = m_og_fff->get_option("fill_density");
     option.opt.label = L("Infill");
@@ -165,15 +165,15 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
     line.append_option(option);
 
     // leapfrog 5.4 add duplication checkbox
-    ConfigOptionDef duplication_checkbox;
-    duplication_checkbox.label = L("Duplication");
-    duplication_checkbox.type = coBool;
-    duplication_checkbox.tooltip = L("This flag enables printing the same object twice in parallel. Both use half of the print bed.");
-    duplication_checkbox.gui_type = ConfigOptionDef::GUIType::undefined;
-    duplication_checkbox.set_default_value(new ConfigOptionBool{ false });
-    option = Option(duplication_checkbox, "duplication");
-    option.opt.sidetext = "";
-    line.append_option(option);
+    // ConfigOptionDef duplication_checkbox;
+    // duplication_checkbox.label = L("Duplication");
+    // duplication_checkbox.type = coBool;
+    // duplication_checkbox.tooltip = L("This flag enables printing the same object twice in parallel. Both use half of the print bed.");
+    // duplication_checkbox.gui_type = ConfigOptionDef::GUIType::undefined;
+    // duplication_checkbox.set_default_value(new ConfigOptionBool{ false });
+    // option = Option(duplication_checkbox, "duplication");
+    // option.opt.sidetext = "";
+    // line.append_option(option);
 
     auto wiping_dialog_btn = [this](wxWindow* parent) {
         m_wiping_dialog_button = new wxButton(parent, wxID_ANY, _L("Purging volumes") + dots, wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);

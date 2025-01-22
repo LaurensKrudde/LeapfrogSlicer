@@ -329,7 +329,6 @@ DPIFrame(NULL, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_S
         Bind(wxCUSTOMEVT_JUMP_TO_OPTION, [](wxCommandEvent& evt) { wxGetApp().jump_to_option(evt.GetInt()); });
     }
 
-    // enable_leapfrog_mode();
 }
 
 void CleanUpSeparators(wxMenu* menu) {
@@ -356,29 +355,56 @@ void CleanUpSeparators(wxMenu* menu) {
 // leapfrog 3.3
 void MainFrame::enable_leapfrog_mode()
 {
-    // 1.3 remove/hide printers tab (Hide instead of RemovePage?)
+    // leapfrog 1.3 - remove/hide printers tab (Hide instead of RemovePage?)
     int m_tab_printer_idx = m_tabpanel->FindPage(m_tab_printer);
     m_tabpanel->RemovePage(m_tab_printer_idx);
 
-    // 2.3 remove window menu
+    // leapfrog 2.3 - remove window menu
     int window_idx = m_menubar->FindMenu(_L("&Window"));
     m_menubar->Remove(window_idx);
 
-    // 2.3 add parts library menu
-    wxMenu* parts_library = new wxMenu();
-    m_menubar->Insert(2, parts_library, _L("&Parts Library"));
+    // leapfrog 2.3 - add parts library menu
+    wxMenu* parts_library_menu = new wxMenu();
+    append_menu_item(parts_library_menu, wxID_ANY, _L("Open"), _L("Open the dialog to modify shape gallery"),
+        [this](wxCommandEvent&) {
+            if (gallery_dialog()->show(true) == wxID_OK) {
+                wxArrayString input_files;
+                m_gallery_dialog->get_input_files(input_files);
+                if (!input_files.IsEmpty())
+                    m_plater->sidebar().obj_list()->load_shape_object_from_gallery(input_files);
+            }
+        }, "shape_gallery", nullptr, []() {return true; }, this);
+    m_menubar->Insert(2, parts_library_menu, _L("&Parts Library"));
 
-    // 2.4 remove view menu
+    // leapfrog 2.4 - remove view menu
     int view_idx = m_menubar->FindMenu(_L("&View"));
     m_menubar->Remove(view_idx);
 
-    // 2.5 remove configuration items
+    // leapfrog 2.5 - remove configuration items
     int config_idx = m_menubar->FindMenu(_L("&Configuration"));
     m_menubar->Remove(config_idx);
 
-    // 2.5 create only language
+    // leapfrog 2.5 - configuration with only language
+    wxMenu* configuration_menu = new wxMenu();
+    configuration_menu->Append(1, _L("Language"));
+    configuration_menu->Bind(wxEVT_MENU, [this](wxCommandEvent&) {
+        {
+            wxString title = wxGetApp().is_editor() ? wxString(SLIC3R_APP_NAME) : wxString(GCODEVIEWER_APP_NAME);
+            title += " - " + _L("Language selection");
+            MessageDialog dialog(nullptr,
+                _L("Switching the language will trigger application restart.\n"
+                    "You will lose content of the plater.") + "\n\n" +
+                _L("Do you want to proceed?"),
+                title,
+                wxICON_QUESTION | wxOK | wxCANCEL);
+            if (dialog.ShowModal() == wxID_CANCEL)
+                return;
+        }
+        wxGetApp().switch_language();
+    }, 1);
+    m_menubar->Insert(3, configuration_menu, _L("&Configuration"));
 
-    // 2.6 remove help items
+    // leapfrog 2.6 - remove help items
     int help_idx = m_menubar->FindMenu(_L("&Help"));
     wxMenu* help_menu = m_menubar->GetMenu(help_idx);
     std::vector<wxString> help_items_to_remove = { 
@@ -397,7 +423,7 @@ void MainFrame::enable_leapfrog_mode()
     }
     CleanUpSeparators(help_menu);
 
-    // 2.6 add contact support
+    // leapfrog 2.6 - add contact support
     help_menu->AppendSeparator();
     append_menu_item(help_menu, wxID_ANY, wxString::Format(_L("Contact %s support"), SLIC3R_APP_NAME),
     wxString::Format(_L("Open the %s support website in your browser"), SLIC3R_APP_NAME),
@@ -410,11 +436,11 @@ void MainFrame::enable_leapfrog_mode()
 // leapfrog 3.3
 void MainFrame::disable_leapfrog_mode()
 {
-    // 1.3 show printers tab
+    // leapfrog 1.3 - show printers tab
     m_tab_printer = new TabPrinter(m_tabpanel);
     add_created_tab(m_tab_printer, wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
 
-    // 2 restore menu bar
+    // leapfrog 2 - restore menu bar
     init_menubar_as_editor();
 
     // Update layout
@@ -899,8 +925,6 @@ void MainFrame::create_preset_tabs()
     // leapfrog 1.3 create, add to m_tabpanel, and then remove
     m_tab_printer = new TabPrinter(m_tabpanel);    
     add_created_tab(m_tab_printer, wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
-    int m_tab_printer_idx = m_tabpanel->FindPage(m_tab_printer);
-    m_tabpanel->RemovePage(m_tab_printer_idx);
     
     // leapfrog hide new printables tab
     // m_printables_webview = new PrintablesWebViewPanel(m_tabpanel);

@@ -587,9 +587,10 @@ Sidebar::Sidebar(Plater *parent)
 
 Sidebar::~Sidebar() {}
 
-// leapfrog 5.3
+// leapfrog 3.3
 void Sidebar::enable_leapfrog_mode()
 {
+    // leapfrog 5.3 - hide printer settings in sidebar
     m_presets_sizer->Show(8, false);
     m_presets_sizer->Show(9, false);
 
@@ -597,9 +598,10 @@ void Sidebar::enable_leapfrog_mode()
     m_scrolled_panel->Refresh();
 }
 
-// leapfrog 5.3
+// leapfrog 3.3
 void Sidebar::disable_leapfrog_mode()
 {
+    // leapfrog 5.3 show printer settings in sidebar
     m_presets_sizer->Show(8, true);
     m_presets_sizer->Show(9, true);
 
