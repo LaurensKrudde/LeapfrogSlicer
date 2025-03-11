@@ -445,6 +445,7 @@ target_link_libraries(
     libvgcode
     GLEW::GLEW
     OpenGL::GL
+    # OpenGL::OpenGL # fixed some error
     hidapi
     libcurl
     ${wxWidgets_LIBRARIES}
