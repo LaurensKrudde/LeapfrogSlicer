@@ -2385,6 +2385,12 @@ void PrintConfigDef::init_fff_params()
     def->mode = comExpert;
     def->set_default_value(new ConfigOptionFloat(0));
 
+    // leapfrog 5.4
+    def = this->add("duplication", coBool);
+    def->label = L("Enable");
+    def->tooltip = L("Print the same object twice in parallel. Both use half of the print bed.");
+    def->set_default_value(new ConfigOptionBool(false));
+
     def = this->add("perimeter_extruder", coInt);
     def->label = L("Perimeter extruder");
     def->category = L("Extruders");

@@ -776,7 +776,7 @@ static void generic_exception_handle()
 class PasswordDialog : public wxDialog {
 public:
     PasswordDialog(MainFrame* mainframe)
-        : wxDialog(mainframe, wxID_ANY, "Enter Admin Password", wxDefaultPosition, wxSize(200, 100)) {
+        : wxDialog(mainframe, wxID_ANY, "Enter Admin Password", wxDefaultPosition, wxSize(300, 150)) {
         // Create layout
         wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
         

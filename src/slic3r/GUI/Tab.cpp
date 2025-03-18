@@ -1095,6 +1095,13 @@ void Tab::on_value_change(const std::string& opt_key, const boost::any& value)
         boost::any val = og_freq_chng_params->get_config_value(*m_config, opt_key);
         og_freq_chng_params->set_value(opt_key, val);
     }
+
+    // leapfrog 5.4
+    if (opt_key == "duplication")
+    {
+        boost::any val = og_freq_chng_params->get_config_value(*m_config, opt_key);
+        og_freq_chng_params->set_value("duplication", val);
+    }
     
     if (opt_key == "pad_around_object") {
         for (PageShp &pg : m_pages) {
@@ -1625,6 +1632,10 @@ void TabPrint::build()
         optgroup->append_single_option_line("max_volumetric_extrusion_rate_slope_negative", "pressure-equlizer_331504");
 
     page = add_options_page(L("Multiple Extruders"), "funnel");
+        // leapfrog 5.4
+        optgroup = page->new_optgroup(L("Duplication"));
+        optgroup->append_single_option_line("duplication");
+
         optgroup = page->new_optgroup(L("Extruders"));
         optgroup->append_single_option_line("perimeter_extruder");
         optgroup->append_single_option_line("infill_extruder");

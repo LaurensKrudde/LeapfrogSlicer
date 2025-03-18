@@ -82,9 +82,14 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
                 }
                 new_conf.set_key_value("brim_width", new ConfigOptionFloat(new_val));
             }
-            // leapfrog else if (opt_key == "duplication") {
-            // change printer preset
-            // wxGetApp() -> 
+            // leapfrog 5.4
+            else if (opt_key == "duplication") {
+            
+                // change parameter
+                bool duplication = boost::any_cast<bool>(value);
+                new_conf.set_key_value("duplication", new ConfigOptionBool(duplication));
+
+            }
             else {
                 assert(opt_key == "support");
                 const wxString& selection = boost::any_cast<wxString>(value);
@@ -165,15 +170,15 @@ FreqChangedParams::FreqChangedParams(wxWindow* parent)
     line.append_option(option);
 
     // leapfrog 5.4 add duplication checkbox
-    // ConfigOptionDef duplication_checkbox;
-    // duplication_checkbox.label = L("Duplication");
-    // duplication_checkbox.type = coBool;
-    // duplication_checkbox.tooltip = L("This flag enables printing the same object twice in parallel. Both use half of the print bed.");
-    // duplication_checkbox.gui_type = ConfigOptionDef::GUIType::undefined;
-    // duplication_checkbox.set_default_value(new ConfigOptionBool{ false });
-    // option = Option(duplication_checkbox, "duplication");
-    // option.opt.sidetext = "";
-    // line.append_option(option);
+    ConfigOptionDef duplication_checkbox;
+    duplication_checkbox.label = L("Duplication");
+    duplication_checkbox.type = coBool;
+    duplication_checkbox.tooltip = L("This flag enables printing the same object twice in parallel. Both use half of the print bed.");
+    duplication_checkbox.gui_type = ConfigOptionDef::GUIType::undefined;
+    duplication_checkbox.set_default_value(new ConfigOptionBool{ false });
+    option = Option(duplication_checkbox, "duplication");
+    option.opt.sidetext = "";
+    line.append_option(option);
 
     auto wiping_dialog_btn = [this](wxWindow* parent) {
         m_wiping_dialog_button = new wxButton(parent, wxID_ANY, _L("Purging volumes") + dots, wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);

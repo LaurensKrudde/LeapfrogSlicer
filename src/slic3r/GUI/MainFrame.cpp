@@ -437,7 +437,6 @@ void MainFrame::enable_leapfrog_mode()
 void MainFrame::disable_leapfrog_mode()
 {
     // leapfrog 1.3 - show printers tab
-    m_tab_printer = new TabPrinter(m_tabpanel);
     add_created_tab(m_tab_printer, wxGetApp().preset_bundle->printers.get_edited_preset().printer_technology() == ptFFF ? "printer" : "sla_printer");
 
     // leapfrog 2 - restore menu bar
@@ -731,7 +730,8 @@ void MainFrame::update_topbars()
     if (wxGetApp().is_gcode_viewer())
         return;
 
-    const bool show_login = !wxGetApp().app_config->has("show_login_button") || wxGetApp().app_config->get_bool("show_login_button");
+    // leapfrog 3.2 show login button only if show_login_button is true
+    const bool show_login = wxGetApp().app_config->get_bool("show_login_button"); // || !wxGetApp().app_config->has("show_login_button");
     m_tmp_top_bar->ShowUserAccount(show_login);
     m_tabpanel->ShowUserAccount(show_login);
 
